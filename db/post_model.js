@@ -33,6 +33,11 @@ const PostModel = mongoose.model("Post", {
 			ref: "Rating",
 		},
 	],
+	topic: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: "Topic",
+		required: true,
+	},
 });
 
 module.exports = PostModel;

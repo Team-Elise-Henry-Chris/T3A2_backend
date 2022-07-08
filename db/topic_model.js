@@ -5,12 +5,7 @@ const TopicModel = mongoose.model("Topic", {
         type: String,
         required: true,
     },
-	posts: [
-		{
-			type: mongoose.Schema.Types.ObjectId,
-			ref: "Post",
-		},
-	],
+    // TODO: image
 });
 
 module.exports = TopicModel;
