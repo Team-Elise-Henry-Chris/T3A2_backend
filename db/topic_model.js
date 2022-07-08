@@ -13,4 +13,4 @@ const TopicModel = mongoose.model("Topic", {
 	],
 });
 
-module.exports = PostModel;
+module.exports = TopicModel;
