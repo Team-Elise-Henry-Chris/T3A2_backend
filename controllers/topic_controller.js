@@ -29,7 +29,7 @@ const deleteTopic = (req, res) => {
 		if (err || topic == null) {
 			res.status(422).send({ error: `Could not find topic: ${req.params.id}` });
 		} else {
-			res.sendStatus(204).send;
+			res.sendStatus(204);
 		}
 	});
 };

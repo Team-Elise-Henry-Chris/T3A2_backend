@@ -2,15 +2,39 @@ const UserModel = require("../db/user_model");
 const bcrypt = require("bcrypt");
 
 const createNewUser = async (req, res) => {
-	UserModel.create(req.body, (err, user) => {
-		if (err) {
-			res.status(422).send({ error: err.message });
-		} else {
-            res.status(201);
+	const hashedPassword = await bcrypt.hash(req.body.password, 10);
+	const user = req.body.username;
+	const user_email = req.body.email;
+
+	await UserModel.create(
+		{ username: user, email: user_email, password: hashedPassword },
+		(err, user) => {
+			if (err) {
+				res.status(422).send(err.message); // need better error handling for duplicate keys
+			} else {
+				res
+					.status(201)
+					.send({ success: `User ${user.username} created successfully` });
+			}
 		}
-	});
+	);
+};
+
+const loginUser = async (req, res) => {
+	const foundUser = await UserModel.findOne({ email: req.body.email });
+	if (!foundUser) {
+		return res.status(422).send({ error: "email not found" });
+	}
+
+	const passwordMatch = await bcrypt.compare(req.body.password, foundUser.password);
+	if (passwordMatch) {
+		res.status(200).send({ success: "successfully logged in" });
+    } else {
+        res.status(401).send({error: "invalid password"})
+    }
 };
 
 module.exports = {
 	createNewUser,
+    loginUser
 };

@@ -18,11 +18,14 @@ const apiRoutesV1 = require("./routes");
 
 // allow cross-origin resource sharing
 app.use(cors());
+
 // interpret request body as json
 app.use(express.json());
 
 app.use("/api/v1/", apiRoutesV1);
 
+// error handler middleware
 app.use(errorHandler);
+
 // export app to index.js to run
 module.exports = app;
