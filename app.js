@@ -7,6 +7,7 @@ const app = express()
 const cors = require("cors")
 const errorHandler = require("./middleware/error_handler.js")
 const apiRoutesV1 = require("./routes")
+const cookieParser = require("cookie-parser")
 
 // TODO configure corsoptions for server address
 
@@ -19,9 +20,13 @@ const apiRoutesV1 = require("./routes")
 // allow cross-origin resource sharing
 app.use(cors())
 
-// interpret request body as json
+// interpret body json
 app.use(express.json())
 
+// interpret cookies
+// app.use(cookieParser)
+
+// routes
 app.use("/api/v1/", apiRoutesV1)
 
 // error handler middleware

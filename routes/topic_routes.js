@@ -1,15 +1,16 @@
 const express = require("express")
 const router = express.Router()
 const topicController = require("../controllers/topic_controller")
+const jwtAuthorize = require("../middleware/jwt_authorize")
 
 router
     .route("/")
     .get(topicController.getAllTopics)
-    .post(topicController.createNewTopic)
+    .post(jwtAuthorize, topicController.createNewTopic)
 
 router
     .route("/:id")
     .get(topicController.getTopic)
-    .delete(topicController.deleteTopic)
+    .delete(jwtAuthorize, topicController.deleteTopic)
 
 module.exports = router

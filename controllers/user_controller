@@ -36,17 +36,23 @@ const loginUser = async (req, res) => {
     if (passwordMatch) {
         // create access and refresh tokens
         const accessToken = jwt.sign(
-            { username: req.body.email },
+            { email: req.body.email },
             process.env.ACCESS_TOKEN_SECRET,
             { expiresIn: "10m" }
         )
         const refreshToken = jwt.sign(
-            { username: req.body.email },
+            { email: req.body.email },
             process.env.REFRESH_TOKEN_SECRET,
             { expiresIn: "7d" }
         )
-        console.log(refreshToken)
-        console.log(accessToken)
+
+        // save refresh token to database
+        await UserModel.findOneAndUpdate(
+            { email: req.body.email },
+            { refresh_token: refreshToken }
+        )
+
+        // send tokens and response
         res.cookie("jwt", refreshToken, {
             httpOnly: true,
             sameSite: "None",
