@@ -24,7 +24,7 @@ app.use(cors())
 app.use(express.json())
 
 // interpret cookies
-// app.use(cookieParser)
+app.use(cookieParser())
 
 // routes
 app.use("/api/v1/", apiRoutesV1)
