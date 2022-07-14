@@ -29,7 +29,7 @@ const createNewUser = async (req, res) => {
 }
 
 const loginUser = async (req, res) => {
-    const foundUser = await UserModel.findOne({ access_token })
+    const foundUser = await UserModel.findOne({ email: req.body.email })
     if (!foundUser) {
         return res.status(422).send({ error: "email not found" })
     }
@@ -74,6 +74,8 @@ const loginUser = async (req, res) => {
 }
 
 const refreshUserToken = async (req, res) => {
+    console.log("test")
+    console.log(req.cookies)
     if (!req.cookies?.jwt) {
         return res.status(401).send({ error: "request missing refresh token" })
     }
@@ -114,4 +116,5 @@ const refreshUserToken = async (req, res) => {
 module.exports = {
     createNewUser,
     loginUser,
+    refreshUserToken,
 }
