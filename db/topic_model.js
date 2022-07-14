@@ -1,4 +1,4 @@
-const mongoose = require("./connection");
+const mongoose = require("./connection")
 
 const TopicModel = mongoose.model("Topic", {
     topic_name: {
@@ -6,6 +6,6 @@ const TopicModel = mongoose.model("Topic", {
         required: true,
     },
     // TODO: image
-});
+})
 
-module.exports = TopicModel;
+module.exports = TopicModel

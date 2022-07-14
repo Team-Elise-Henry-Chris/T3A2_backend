@@ -1,40 +1,66 @@
-const UserModel = require("../db/user_model");
-const bcrypt = require("bcrypt");
+const UserModel = require("../db/user_model")
+const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
 
 const createNewUser = async (req, res) => {
-	const hashedPassword = await bcrypt.hash(req.body.password, 10);
-	const user = req.body.username;
-	const user_email = req.body.email;
+    const hashedPassword = await bcrypt.hash(req.body.password, 10)
+    const user = req.body.username
+    const user_email = req.body.email
 
-	await UserModel.create(
-		{ username: user, email: user_email, password: hashedPassword },
-		(err, user) => {
-			if (err) {
-				res.status(422).send(err.message); // need better error handling for duplicate keys
-			} else {
-				res
-					.status(201)
-					.send({ success: `User ${user.username} created successfully` });
-			}
-		}
-	);
-};
+    await UserModel.create(
+        { username: user, email: user_email, password: hashedPassword },
+        (err, user) => {
+            if (err) {
+                res.status(422).send(err.message) // need better error handling for duplicate keys
+            } else {
+                res.status(201).send({
+                    success: `User ${user.username} created successfully`,
+                })
+            }
+        }
+    )
+}
 
 const loginUser = async (req, res) => {
-	const foundUser = await UserModel.findOne({ email: req.body.email });
-	if (!foundUser) {
-		return res.status(422).send({ error: "email not found" });
-	}
-
-	const passwordMatch = await bcrypt.compare(req.body.password, foundUser.password);
-	if (passwordMatch) {
-		res.status(200).send({ success: "successfully logged in" });
-    } else {
-        res.status(401).send({error: "invalid password"})
+    const foundUser = await UserModel.findOne({ email: req.body.email })
+    if (!foundUser) {
+        return res.status(422).send({ error: "email not found" })
     }
-};
+
+    // check password is correct
+    const passwordMatch = await bcrypt.compare(
+        req.body.password,
+        foundUser.password
+    )
+
+    if (passwordMatch) {
+        // create access and refresh tokens
+        const accessToken = jwt.sign(
+            { username: req.body.email },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: "10m" }
+        )
+        const refreshToken = jwt.sign(
+            { username: req.body.email },
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: "7d" }
+        )
+        console.log(refreshToken)
+        console.log(accessToken)
+        res.cookie("jwt", refreshToken, {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        })
+            .status(200)
+            .send({ success: "successfully logged in", accessToken })
+    } else {
+        res.status(401).send({ error: "invalid password" })
+    }
+}
 
 module.exports = {
-	createNewUser,
-    loginUser
-};
+    createNewUser,
+    loginUser,
+}

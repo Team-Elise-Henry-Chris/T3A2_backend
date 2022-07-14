@@ -1,13 +1,15 @@
-const express = require("express");
-const router = express.Router();
-const topicController = require("../controllers/topic_controller");
+const express = require("express")
+const router = express.Router()
+const topicController = require("../controllers/topic_controller")
 
-router.route("/")
-	.get(topicController.getAllTopics)
-	.post(topicController.createNewTopic);
+router
+    .route("/")
+    .get(topicController.getAllTopics)
+    .post(topicController.createNewTopic)
 
-router.route("/:id")
-	.get(topicController.getTopic)
-	.delete(topicController.deleteTopic);
+router
+    .route("/:id")
+    .get(topicController.getTopic)
+    .delete(topicController.deleteTopic)
 
-module.exports = router;
+module.exports = router
