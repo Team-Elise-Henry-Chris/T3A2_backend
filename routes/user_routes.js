@@ -8,7 +8,7 @@ router
     .post(userController.createNewUser)
     .put(userController.loginUser)
 
-router.get("/refresh", userController.refreshUserToken)
+router.get("/refresh", userController.giveNewAccessToken)
 
 router.get("/logout", userController.logoutUser)
 

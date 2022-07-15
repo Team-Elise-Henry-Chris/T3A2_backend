@@ -73,7 +73,7 @@ const loginUser = async (req, res) => {
     }
 }
 
-const refreshUserToken = async (req, res) => {
+const giveNewAccessToken = async (req, res) => {
     console.log("test")
     console.log(req.cookies)
     if (!req.cookies?.jwt) {
@@ -136,6 +136,6 @@ const logoutUser = async (req, res) => {
 module.exports = {
     createNewUser,
     loginUser,
-    refreshUserToken,
+    giveNewAccessToken,
     logoutUser,
 }

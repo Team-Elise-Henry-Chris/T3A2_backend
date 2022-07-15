@@ -10,6 +10,7 @@ const apiRoutesV1 = require("./routes")
 const cookieParser = require("cookie-parser")
 
 // TODO configure corsoptions for server address
+// may need to allow credentials option for front end to send cookie.
 
 // const corsOptions = {
 //     origin: 'address.com'
