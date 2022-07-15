@@ -15,6 +15,9 @@ const UserModel = mongoose.model("User", {
         type: String,
         required: [true, "a password is required"],
     },
+    refresh_token: {
+        type: String
+    }
 })
 
 module.exports = UserModel
