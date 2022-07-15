@@ -43,12 +43,18 @@ const loginUser = async (req, res) => {
     if (passwordMatch) {
         // create access and refresh tokens
         const accessToken = jwt.sign(
-            { email: req.body.email },
+            {
+                email: req.body.email,
+                role: foundUser.role,
+            },
             process.env.ACCESS_TOKEN_SECRET,
             { expiresIn: "5m" }
         )
         const refreshToken = jwt.sign(
-            { email: req.body.email },
+            {
+                email: req.body.email,
+                role: foundUser.role,
+            },
             process.env.REFRESH_TOKEN_SECRET,
             { expiresIn: "7d" }
         )
@@ -99,8 +105,12 @@ const giveNewAccessToken = async (req, res) => {
             } else if (foundUser.email !== decoded.email) {
                 return res.status(403).send({ error: "refresh token invalid" })
             } else {
+                console.log(decoded)
                 const accessToken = jwt.sign(
-                    { email: foundUser.email },
+                    {
+                        email: req.body.email,
+                        role: foundUser.role,
+                    },
                     process.env.ACCESS_TOKEN_SECRET,
                     { expiresIn: "5min" }
                 )
