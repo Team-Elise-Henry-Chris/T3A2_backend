@@ -16,8 +16,14 @@ const UserModel = mongoose.model("User", {
         required: [true, "a password is required"],
     },
     refresh_token: {
-        type: String
-    }
+        type: String,
+    },
+    role: {
+        type: String,
+        enum: { values: ["user", "admin"] },
+        default: "user",
+        required: true,
+    },
 })
 
 module.exports = UserModel
