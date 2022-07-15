@@ -113,8 +113,29 @@ const refreshUserToken = async (req, res) => {
     )
 }
 
+const logoutUser = async (req, res) => {
+    if (!req.cookies?.jwt) {
+        return res
+            .status(400)
+            .send({ error: "no cookies found, you are already logged out" })
+    }
+    const refreshToken = req.cookies.jwt
+
+    const foundUser = await UserModel.findOne({ refresh_token: refreshToken })
+
+    if (!foundUser) {
+        res.clearCookie("jwt", { httpOnly: true })
+        return res.sendStatus(204)
+    }
+
+    foundUser.refresh_token = ""
+    await foundUser.save()
+    res.clearCookie("jwt", { httpOnly: true }).sendStatus(204)
+}
+
 module.exports = {
     createNewUser,
     loginUser,
     refreshUserToken,
+    logoutUser,
 }

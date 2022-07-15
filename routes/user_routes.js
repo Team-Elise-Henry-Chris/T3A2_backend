@@ -8,6 +8,8 @@ router
     .post(userController.createNewUser)
     .put(userController.loginUser)
 
-router.route("/refresh").get(userController.refreshUserToken)
+router.get("/refresh", userController.refreshUserToken)
+
+router.get("/logout", userController.logoutUser)
 
 module.exports = router
