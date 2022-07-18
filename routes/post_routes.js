@@ -9,5 +9,9 @@ router
     .get(postController.getAllPosts)
     .post(jwtAuthorize, postController.createPost)
 
+router
+    .route("/:id")
+    .get(postController.getPost)
+    .delete(jwtAuthorize, adminAuth, postController.deletePost)
 
 module.exports = router
