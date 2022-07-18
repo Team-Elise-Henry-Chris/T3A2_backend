@@ -143,9 +143,32 @@ const logoutUser = async (req, res) => {
     res.clearCookie("jwt", { httpOnly: true }).sendStatus(204)
 }
 
+const getUser = (req, res) => {
+    UserModel.findById(
+        req.params.id,
+        "-refresh_token -password -__v",
+        (err, user) => {
+            if (err) {
+                res.status(422).send({
+                    error: `Could not find user: ${req.params.id}`,
+                })
+            } else {
+                // returns full user details to admins or the user it belongs to
+                // and the username only to everyone else
+                if (req.email == user.email || req.role == "admin") {
+                    return res.status(200).send(user)
+                } else {
+                    return res.status(200).send({ username: user.username })
+                }
+            }
+        }
+    )
+}
+
 module.exports = {
     createNewUser,
     loginUser,
     giveNewAccessToken,
     logoutUser,
+    getUser,
 }
