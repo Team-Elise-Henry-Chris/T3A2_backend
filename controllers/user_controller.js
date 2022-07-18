@@ -9,9 +9,13 @@ const jwt = require("jsonwebtoken")
 // TODO: refresh token rotation -> more secure
 
 const createNewUser = async (req, res) => {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10)
-    const user = req.body.username
-    const user_email = req.body.email
+    try {
+        const hashedPassword = await bcrypt.hash(req.body.password, 10)
+        const user = req.body.username
+        const user_email = req.body.email
+    } catch {
+        return res.sendStatus(400)
+    }
 
     await UserModel.create(
         { username: user, email: user_email, password: hashedPassword },

@@ -4,6 +4,7 @@ const getAllPosts = async (req, res) => {
     res.send(await PostModel.find())
 }
 
+// need to change to get user as user email
 const createPost = (req, res) => {
     PostModel.create(req.body, (err, post) => {
         if (err) {
