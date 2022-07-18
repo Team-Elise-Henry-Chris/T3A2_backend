@@ -19,7 +19,7 @@ const cookieParser = require("cookie-parser")
 // app.use(cors(corsOptions))
 
 // allow cross-origin resource sharing
-app.use(cors())
+app.use(cors({origin: *}))
 
 // interpret body json
 app.use(express.json())
