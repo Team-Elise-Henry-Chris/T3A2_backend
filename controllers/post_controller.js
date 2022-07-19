@@ -1,9 +1,10 @@
 const PostModel = require("../db/post_model")
 const UserModel = require("../db/user_model")
+const RatingModel = require("../db/rating_model")
 const helper = require("./helpers")
 
 const getAllPosts = async (req, res) => {
-    res.send(await PostModel.find())
+    res.send(await PostModel.find().populate("ratings"))
 }
 
 // need to change to get user as user email
@@ -19,7 +20,7 @@ const createPost = async (req, res) => {
             link: postLink,
             resource_type: postType,
             topic: postTopicId,
-            user: postUser._id
+            user: postUser._id,
         },
         (err, post) => {
             if (err) {
@@ -32,13 +33,14 @@ const createPost = async (req, res) => {
 }
 
 const getPost = (req, res) => {
-    PostModel.findById(req.params.id, (err, post) => {
+    PostModel.findById(req.params.id, async (err, post) => {
         if (err || post == null) {
             res.status(404).send({
                 error: `Could not find post: ${req.params.id}`,
             })
         } else {
-            res.send(post)
+            const populatedPost = await post.populate("ratings")
+            res.send(populatedPost)
         }
     })
 }
