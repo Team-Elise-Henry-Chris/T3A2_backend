@@ -8,4 +8,7 @@ router
     .route("/")
     .post(jwtAuthorize, ratingController.createRating)
 
+router
+    .route("/:id")
+    // .delete(jwtAuthorize, ratingController.deleteRating)
 module.exports = router
