@@ -84,7 +84,7 @@ const loginUser = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
         })
             .status(200)
-            .send({ success: "successfully logged in", accessToken })
+            .send({ success: "successfully logged in", accessToken, role: foundUser.role })
     } else {
         res.status(401).send({ error: "invalid password" })
     }
