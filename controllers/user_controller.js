@@ -29,9 +29,20 @@ const createNewUser = async (req, res) => {
 }
 
 const loginUser = async (req, res) => {
-    const foundUser = await UserModel.findOne({ email: req.body.email })
+    // handle email or username
+    let query
+    if (req.body.email) {
+        query = { email: req.body.email }
+    } else if (req.body.username) {
+        query = { username: req.body.username }
+    } else {
+        return res.status(422).send({ error: "email or username required" })
+    }
+
+    // find the user associated with email/username
+    foundUser = await UserModel.findOne(query)
     if (!foundUser) {
-        return res.status(422).send({ error: "email not found" })
+        return res.status(422).send({ error: "user not found" })
     }
 
     // check password is correct
@@ -44,7 +55,7 @@ const loginUser = async (req, res) => {
         // create access and refresh tokens
         const accessToken = jwt.sign(
             {
-                email: req.body.email,
+                email: foundUser.email,
                 role: foundUser.role,
             },
             process.env.ACCESS_TOKEN_SECRET,
@@ -52,7 +63,7 @@ const loginUser = async (req, res) => {
         )
         const refreshToken = jwt.sign(
             {
-                email: req.body.email,
+                email: foundUser.email,
                 role: foundUser.role,
             },
             process.env.REFRESH_TOKEN_SECRET,
@@ -61,7 +72,7 @@ const loginUser = async (req, res) => {
 
         // save refresh token to database
         await UserModel.findOneAndUpdate(
-            { email: req.body.email },
+            { email: foundUser.email },
             { refresh_token: refreshToken }
         )
 
