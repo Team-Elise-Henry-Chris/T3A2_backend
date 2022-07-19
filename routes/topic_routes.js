@@ -11,7 +11,7 @@ router
 
 router
     .route("/:id")
-    .get(topicController.getTopic)
+    .get(topicController.getTopicPosts)
     .delete(jwtAuthorize, topicController.deleteTopic)
 
 module.exports = router
