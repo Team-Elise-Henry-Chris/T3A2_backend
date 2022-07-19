@@ -12,6 +12,6 @@ router
 router
     .route("/:id")
     .get(postController.getPost)
-    .delete(jwtAuthorize, adminAuth, postController.deletePost)
+    .delete(jwtAuthorize, postController.deletePost)
 
 module.exports = router

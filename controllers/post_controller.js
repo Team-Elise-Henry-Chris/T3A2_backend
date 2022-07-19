@@ -1,18 +1,34 @@
 const PostModel = require("../db/post_model")
+const UserModel = require("../db/user_model")
+const helper = require("./helpers")
 
 const getAllPosts = async (req, res) => {
     res.send(await PostModel.find())
 }
 
 // need to change to get user as user email
-const createPost = (req, res) => {
-    PostModel.create(req.body, (err, post) => {
-        if (err) {
-            res.status(422).send({ error: err.message })
-        } else {
-            res.status(201).send(post)
+const createPost = async (req, res) => {
+    const postTitle = req.body.title
+    const postLink = req.body.link
+    const postType = req.body.resource_type
+    const postTopicId = req.body.topic
+    const postUser = await UserModel.findOne({ email: req.email })
+    PostModel.create(
+        {
+            title: postTitle,
+            link: postLink,
+            resource_type: postType,
+            topic: postTopicId,
+            user: postUser._id
+        },
+        (err, post) => {
+            if (err) {
+                res.status(422).send({ error: err.message })
+            } else {
+                res.status(201).send(post)
+            }
         }
-    })
+    )
 }
 
 const getPost = (req, res) => {
@@ -27,21 +43,27 @@ const getPost = (req, res) => {
     })
 }
 
-const deletePost = (req, res) => {
-    PostModel.findByIdAndDelete(req.params.id, (err, post) => {
-        if (err || post == null) {
-            res.status(422).send({
-                error: `Could not find topic: ${req.params.id}`,
-            })
-        } else {
-            res.sendStatus(204)
-        }
-    })
+const deletePost = async (req, res) => {
+    const foundPost = await PostModel.findById(req.params.id)
+    if (!foundPost) {
+        return res.status(422).send({ error: "post not found" })
+    }
+    if (
+        (await helper.belongsToUser(req.email, foundPost.user)) ||
+        req.role == "admin"
+    ) {
+        foundPost.remove()
+        res.status(200).send({ success: "post deleted" })
+    } else {
+        return res.status(401).send({
+            error: "you dont have permission to delete this",
+        })
+    }
 }
 
 module.exports = {
     getAllPosts,
     createPost,
     getPost,
-    deletePost
- }
+    deletePost,
+}
