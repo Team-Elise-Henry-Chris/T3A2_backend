@@ -2,7 +2,6 @@ const RatingModel = require("../db/rating_model")
 const UserModel = require("../db/user_model")
 const PostModel = require("../db/post_model")
 const helper = require("./helpers")
-const mongoose = require("mongoose")
 
 const createRating = async (req, res) => {
     const foundUser = await UserModel.findOne({ email: req.email })
@@ -14,12 +13,12 @@ const createRating = async (req, res) => {
 
     const populatedPost = await foundPost.populate("ratings")
     let duplicateRating = false
-
     populatedPost.ratings.forEach((rating) => {
         if (rating.user.equals(foundUser._id)) {
-            return (duplicateRating = true)
+            duplicateRating = true
         }
     })
+
     if (!duplicateRating) {
         await RatingModel.create(
             { rating: req.body.rating, user: foundUser._id },
@@ -37,43 +36,41 @@ const createRating = async (req, res) => {
     }
 }
 
-// const deleteRating = async (req, res) => {
-//     const ratingId = req.params.id
-//     const ratingObjectId = mongoose.Types.ObjectId(ratingId)
+const deleteRating = async (req, res) => {
+    const ratingId = req.params.id
 
-//     console.log(ratingId)
-//     console.log(ratingObjectId)
+    // check the rating exists
+    const foundRating = await RatingModel.findById(ratingId)
+    if (!foundRating) {
+        return res.status(400).send({ error: "rating does not exist" })
+    }
 
-//     const foundRating = await RatingModel.findById(ratingId)
-//     console.log(foundRating)
-//     if (!foundRating) {
-//         return res.status(400).send({ error: "rating does not exist" })
-//     }
+    // check the post exists
+    const foundPost = await PostModel.findOne({
+        ratings: ratingObjectId,
+    })
+    if (!foundPost) {
+        return res.status(400).send({ error: "post does not exist" })
+    }
 
-//     const foundPost = await PostModel.find({
-//         ratings: ratingObjectId,
-//     })
-
-//     if (!foundPost) {
-//         return res.status(400).send({ error: "post does not exist" })
-//     }
-
-//     if (
-//         (await helper.belongsToUser(req.email, foundRating.user)) ||
-//         req.role == "admin"
-//     ) {
-//         foundPost.update({ ratings: { _id: ratingObjectId } })
-//         foundPost.update(
-//             { ratings: ratingObjectId },
-//             { $set: "" },
-//             function (err, rating) {}
-//         )
-//         foundRating.remove()
-//         res.sendStatus(204)
-//     }
-// }
+    // check the user has authority to delete
+    if (
+        (await helper.belongsToUser(req.email, foundRating.user)) ||
+        req.role == "admin"
+    ) {
+        // delete the rating reference id from post ratings array
+        foundPost.update({ $pull: { ratings: ratingId } }, (err, data) => {
+            console.log(data)
+            if (err)
+                return res.status(500).send({error: "error in deleting rating"})
+        })
+        // remove the rating
+        foundRating.remove()
+        res.sendStatus(204)
+    }
+}
 
 module.exports = {
     createRating,
-    // deleteRating,
+    deleteRating,
 }

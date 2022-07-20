@@ -10,5 +10,6 @@ router
 
 router
     .route("/:id")
-    // .delete(jwtAuthorize, ratingController.deleteRating)
+    .delete(jwtAuthorize, ratingController.deleteRating)
+    
 module.exports = router
