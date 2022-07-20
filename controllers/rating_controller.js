@@ -36,6 +36,33 @@ const createRating = async (req, res) => {
     }
 }
 
+const editRating = async (req, res) => {
+    // check the rating exists
+    const foundRating = await RatingModel.findById(req.params.id)
+    if (!foundRating) {
+        return res.status(400).send({ error: "rating does not exist" })
+    }
+
+    // check the user has authority to update, and proceed accordingly
+    if (
+        (await helper.belongsToUser(req.email, foundRating.user)) ||
+        req.role == "admin"
+    ) {
+        foundRating.rating = req.body.rating
+        foundRating.save((err, rating) => {
+            if (err) {
+                return res.status(500).send({ error: "error updating rating" })
+            } else {
+                return res.status(200).send(rating)
+            }
+        })
+    } else {
+        return res.status(401).send({
+            error: "you dont have permission to edit this rating",
+        })
+    }
+}
+
 const deleteRating = async (req, res) => {
     const ratingId = req.params.id
 
@@ -47,7 +74,7 @@ const deleteRating = async (req, res) => {
 
     // check the post exists
     const foundPost = await PostModel.findOne({
-        ratings: ratingObjectId,
+        ratings: ratingId,
     })
     if (!foundPost) {
         return res.status(400).send({ error: "post does not exist" })
@@ -60,17 +87,20 @@ const deleteRating = async (req, res) => {
     ) {
         // delete the rating reference id from post ratings array
         foundPost.update({ $pull: { ratings: ratingId } }, (err, data) => {
-            console.log(data)
             if (err)
-                return res.status(500).send({error: "error in deleting rating"})
+                return res
+                    .status(500)
+                    .send({ error: "error in deleting rating" })
         })
         // remove the rating
         foundRating.remove()
         res.sendStatus(204)
+    } else {
     }
 }
 
 module.exports = {
     createRating,
+    editRating,
     deleteRating,
 }
