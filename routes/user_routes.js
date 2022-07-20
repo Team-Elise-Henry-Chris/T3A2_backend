@@ -1,7 +1,8 @@
 const express = require("express")
-const { refreshUserToken } = require("../controllers/user_controller")
 const router = express.Router()
 const userController = require("../controllers/user_controller")
+const jwtAuthorize = require("../middleware/jwt_auth")
+
 
 router
     .route("/")
@@ -10,6 +11,8 @@ router
 
 router.get("/refresh", userController.giveNewAccessToken)
 
-router.get("/logout", userController.logoutUser)
+router.get("/logout", jwtAuthorize, userController.logoutUser)
+
+router.get("/:id", jwtAuthorize, userController.getUser)
 
 module.exports = router

@@ -13,7 +13,7 @@ const createNewUser = async (req, res) => {
     const user = req.body.username
     const user_email = req.body.email
 
-    await UserModel.create(
+    UserModel.create(
         { username: user, email: user_email, password: hashedPassword },
         (err, user) => {
             if (err) {
@@ -29,9 +29,20 @@ const createNewUser = async (req, res) => {
 }
 
 const loginUser = async (req, res) => {
-    const foundUser = await UserModel.findOne({ email: req.body.email })
+    // handle email or username
+    let query
+    if (req.body.email) {
+        query = { email: req.body.email }
+    } else if (req.body.username) {
+        query = { username: req.body.username }
+    } else {
+        return res.status(422).send({ error: "email or username required" })
+    }
+
+    // find the user associated with email/username
+    foundUser = await UserModel.findOne(query)
     if (!foundUser) {
-        return res.status(422).send({ error: "email not found" })
+        return res.status(422).send({ error: "user not found" })
     }
 
     // check password is correct
@@ -44,7 +55,7 @@ const loginUser = async (req, res) => {
         // create access and refresh tokens
         const accessToken = jwt.sign(
             {
-                email: req.body.email,
+                email: foundUser.email,
                 role: foundUser.role,
             },
             process.env.ACCESS_TOKEN_SECRET,
@@ -52,7 +63,7 @@ const loginUser = async (req, res) => {
         )
         const refreshToken = jwt.sign(
             {
-                email: req.body.email,
+                email: foundUser.email,
                 role: foundUser.role,
             },
             process.env.REFRESH_TOKEN_SECRET,
@@ -61,7 +72,7 @@ const loginUser = async (req, res) => {
 
         // save refresh token to database
         await UserModel.findOneAndUpdate(
-            { email: req.body.email },
+            { email: foundUser.email },
             { refresh_token: refreshToken }
         )
 
@@ -73,7 +84,7 @@ const loginUser = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
         })
             .status(200)
-            .send({ success: "successfully logged in", accessToken })
+            .send({ success: "successfully logged in", accessToken, role: foundUser.role })
     } else {
         res.status(401).send({ error: "invalid password" })
     }
@@ -143,9 +154,32 @@ const logoutUser = async (req, res) => {
     res.clearCookie("jwt", { httpOnly: true }).sendStatus(204)
 }
 
+const getUser = (req, res) => {
+    UserModel.findById(
+        req.params.id,
+        "-refresh_token -password -__v",
+        (err, user) => {
+            if (err) {
+                res.status(422).send({
+                    error: `Could not find user: ${req.params.id}`,
+                })
+            } else {
+                // returns full user details to admins or the user it belongs to
+                // and the username only to everyone else
+                if (req.email == user.email || req.role == "admin") {
+                    return res.status(200).send(user)
+                } else {
+                    return res.status(200).send({ username: user.username })
+                }
+            }
+        }
+    )
+}
+
 module.exports = {
     createNewUser,
     loginUser,
     giveNewAccessToken,
     logoutUser,
+    getUser,
 }
