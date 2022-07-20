@@ -34,12 +34,13 @@ const createNewTopic = (req, res) => {
 }
 
 const deleteTopic = (req, res) => {
-    TopicModel.findByIdAndDelete(req.params.id, (err, topic) => {
-        if (err || topic == null) {
-            res.status(422).send({
-                error: `Could not find topic: ${req.params.id}`,
-            })
-        } else {
+    TopicModel.findByIdAndDelete(req.params.id, async (err, topic) => {
+		if (err || topic == null) {
+			res.status(422).send({
+				error: `Could not find topic: ${req.params.id}`,
+			})
+		} else {
+			await PostModel.deleteMany({ topic: req.params.id })
             res.sendStatus(204)
         }
     })
