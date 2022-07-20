@@ -45,6 +45,26 @@ const getPost = (req, res) => {
     })
 }
 
+const editPost = async (req, res) => {
+    const foundPost = await PostModel.findById(req.params.id)
+    const postTitle = req.body.title
+    if (!foundPost) {
+        return res.status(422).send({ error: "post not found" })
+    }
+    if (
+        (await helper.belongsToUser(req.email, foundPost.user)) ||
+        req.role == "admin"
+    ) {
+        foundPost.title = postTitle
+        await foundPost.save()
+        res.status(200).send({ success: "post edited" })
+    } else {
+        return res.status(401).send({
+            error: "you dont have permission to edit this",
+        })
+    }
+}
+
 const deletePost = async (req, res) => {
     const foundPost = await PostModel.findById(req.params.id)
     if (!foundPost) {
@@ -67,5 +87,6 @@ module.exports = {
     getAllPosts,
     createPost,
     getPost,
+    editPost,
     deletePost,
 }

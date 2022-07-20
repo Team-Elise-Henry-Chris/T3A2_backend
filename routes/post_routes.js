@@ -12,6 +12,7 @@ router
 router
     .route("/:id")
     .get(postController.getPost)
+    .patch(jwtAuthorize, postController.editPost)
     .delete(jwtAuthorize, postController.deletePost)
 
 module.exports = router
