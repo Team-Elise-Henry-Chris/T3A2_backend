@@ -47,15 +47,21 @@ const getPost = (req, res) => {
 
 const editPost = async (req, res) => {
     const foundPost = await PostModel.findById(req.params.id)
-    const postTitle = req.body.title
     if (!foundPost) {
         return res.status(422).send({ error: "post not found" })
+    }
+
+    if (!req.body.title || !req.body.resource_type) {
+        return res
+            .status(422)
+            .send({ error: "request must contain new title and resource type" })
     }
     if (
         (await helper.belongsToUser(req.email, foundPost.user)) ||
         req.role == "admin"
     ) {
-        foundPost.title = postTitle
+        foundPost.title = req.body.title
+        foundPost.resource_type = req.body.resource_type
         await foundPost.save()
         res.status(200).send({ success: "post edited" })
     } else {
