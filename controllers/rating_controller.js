@@ -1,10 +1,9 @@
 const RatingModel = require("../db/rating_model")
 const UserModel = require("../db/user_model")
 const PostModel = require("../db/post_model")
-const helper = require("./helpers")
 
 const createRating = async (req, res) => {
-    const foundUser = await UserModel.findOne({ email: req.email })
+    const foundUser = await UserModel.findById(req.id)
     const foundPost = await PostModel.findById(req.body.postId)
 
     if (!foundUser || !foundPost) {
@@ -44,10 +43,7 @@ const editRating = async (req, res) => {
     }
 
     // check the user has authority to update, and proceed accordingly
-    if (
-        (await helper.belongsToUser(req.email, foundRating.user)) ||
-        req.role == "admin"
-    ) {
+    if (req.id == foundRating.user || req.role == "admin") {
         foundRating.rating = req.body.rating
         foundRating.save((err, rating) => {
             if (err) {
@@ -81,10 +77,7 @@ const deleteRating = async (req, res) => {
     }
 
     // check the user has authority to delete
-    if (
-        (await helper.belongsToUser(req.email, foundRating.user)) ||
-        req.role == "admin"
-    ) {
+    if (req.id == foundRating.user || req.role == "admin") {
         // delete the rating reference id from post ratings array
         foundPost.update({ $pull: { ratings: ratingId } }, (err, data) => {
             if (err)
