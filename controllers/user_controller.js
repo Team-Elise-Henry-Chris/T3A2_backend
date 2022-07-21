@@ -86,7 +86,6 @@ const loginUser = async (req, res) => {
             .send({
                 success: "successfully logged in",
                 accessToken,
-                role: foundUser.role,
             })
     } else {
         res.status(401).send({ error: "invalid password" })
