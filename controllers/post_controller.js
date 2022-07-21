@@ -1,7 +1,4 @@
 const PostModel = require("../db/post_model")
-const UserModel = require("../db/user_model")
-const RatingModel = require("../db/rating_model")
-const helper = require("./helpers")
 
 const getAllPosts = async (req, res) => {
     res.send(await PostModel.find().populate("ratings"))
@@ -13,14 +10,14 @@ const createPost = async (req, res) => {
     const postLink = req.body.link
     const postType = req.body.resource_type
     const postTopicId = req.body.topic
-    const postUser = await UserModel.findOne({ email: req.email })
+    const postUser = req.id
     PostModel.create(
         {
             title: postTitle,
             link: postLink,
             resource_type: postType,
             topic: postTopicId,
-            user: postUser._id,
+            user: postUser,
         },
         (err, post) => {
             if (err) {
@@ -56,10 +53,7 @@ const editPost = async (req, res) => {
             .status(422)
             .send({ error: "request must contain new title and resource type" })
     }
-    if (
-        (await helper.belongsToUser(req.email, foundPost.user)) ||
-        req.role == "admin"
-    ) {
+    if (req.id == foundPost.user || req.role == "admin") {
         foundPost.title = req.body.title
         foundPost.resource_type = req.body.resource_type
         await foundPost.save()
@@ -76,10 +70,7 @@ const deletePost = async (req, res) => {
     if (!foundPost) {
         return res.status(422).send({ error: "post not found" })
     }
-    if (
-        (await helper.belongsToUser(req.email, foundPost.user)) ||
-        req.role == "admin"
-    ) {
+    if (req.id == foundPost.user || req.role == "admin") {
         foundPost.remove()
         res.status(200).send({ success: "post deleted" })
     } else {

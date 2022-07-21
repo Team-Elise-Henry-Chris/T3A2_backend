@@ -14,8 +14,8 @@ const jwtAuthorize = (req, res, next) => {
         if (err) {
             return res.status(403).send({ error: "invalid token" })
         }
-        //hand verified user email and role to req body
-        req.email = decrypted.email
+        //hand verified user id and role to req body
+        req.id = decrypted.id
         req.role = decrypted.role
         next()
     })
