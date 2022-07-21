@@ -55,7 +55,7 @@ const loginUser = async (req, res) => {
         // create access and refresh tokens
         const accessToken = jwt.sign(
             {
-                email: foundUser.email,
+                id: foundUser._id,
                 role: foundUser.role,
             },
             process.env.ACCESS_TOKEN_SECRET,
@@ -63,7 +63,7 @@ const loginUser = async (req, res) => {
         )
         const refreshToken = jwt.sign(
             {
-                email: foundUser.email,
+                id: foundUser._id,
                 role: foundUser.role,
             },
             process.env.REFRESH_TOKEN_SECRET,
@@ -71,10 +71,9 @@ const loginUser = async (req, res) => {
         )
 
         // save refresh token to database
-        await UserModel.findOneAndUpdate(
-            { email: foundUser.email },
-            { refresh_token: refreshToken }
-        )
+        foundUser.refresh_token = refreshToken
+        await foundUser.save()
+
 
         // send tokens and response
         res.cookie("jwt", refreshToken, {
@@ -84,23 +83,22 @@ const loginUser = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
         })
             .status(200)
-            .send({ success: "successfully logged in", accessToken, role: foundUser.role })
+            .send({
+                success: "successfully logged in",
+                accessToken,
+            })
     } else {
         res.status(401).send({ error: "invalid password" })
     }
 }
 
 const giveNewAccessToken = async (req, res) => {
-    console.log("test")
-    console.log(req.cookies)
     if (!req.cookies?.jwt) {
         return res.status(401).send({ error: "request missing refresh token" })
     }
     const refreshToken = req.cookies.jwt
-    console.log(refreshToken)
 
     const foundUser = await UserModel.findOne({ refresh_token: refreshToken })
-
     if (!foundUser) {
         return res.status(403).send({ error: "refresh token invalid" })
     }
@@ -113,13 +111,12 @@ const giveNewAccessToken = async (req, res) => {
                 return res
                     .status(401)
                     .send({ error: "refresh token could not be decoded" })
-            } else if (foundUser.email !== decoded.email) {
+            } else if (!foundUser._id.equals(decoded.id)) {
                 return res.status(403).send({ error: "refresh token invalid" })
             } else {
-                console.log(decoded)
                 const accessToken = jwt.sign(
                     {
-                        email: req.body.email,
+                        id: foundUser._id,
                         role: foundUser.role,
                     },
                     process.env.ACCESS_TOKEN_SECRET,
@@ -143,7 +140,6 @@ const logoutUser = async (req, res) => {
     const refreshToken = req.cookies.jwt
 
     const foundUser = await UserModel.findOne({ refresh_token: refreshToken })
-
     if (!foundUser) {
         res.clearCookie("jwt", { httpOnly: true })
         return res.sendStatus(204)
@@ -166,7 +162,7 @@ const getUser = (req, res) => {
             } else {
                 // returns full user details to admins or the user it belongs to
                 // and the username only to everyone else
-                if (req.email == user.email || req.role == "admin") {
+                if (req.id == user._id || req.role == "admin") {
                     return res.status(200).send(user)
                 } else {
                     return res.status(200).send({ username: user.username })

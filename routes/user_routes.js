@@ -11,7 +11,7 @@ router
 
 router.get("/refresh", userController.giveNewAccessToken)
 
-router.get("/logout", jwtAuthorize, userController.logoutUser)
+router.get("/logout", userController.logoutUser)
 
 router.get("/:id", jwtAuthorize, userController.getUser)
 
