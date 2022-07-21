@@ -44,7 +44,7 @@ const loginUser = async (req, res) => {
     if (!foundUser) {
         return res.status(422).send({ error: "user not found" })
     }
-    
+
     // check password is correct
     const passwordMatch = await bcrypt.compare(
         req.body.password,
@@ -163,7 +163,7 @@ const getUser = (req, res) => {
             } else {
                 // returns full user details to admins or the user it belongs to
                 // and the username only to everyone else
-                if (req.email == user.email || req.role == "admin") {
+                if (req.id == user._id || req.role == "admin") {
                     return res.status(200).send(user)
                 } else {
                     return res.status(200).send({ username: user.username })
