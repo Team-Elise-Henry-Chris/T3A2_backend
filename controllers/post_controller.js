@@ -30,6 +30,7 @@ const createPost = async (req, res) => {
 }
 
 const getPost = (req, res) => {
+    // sends back all posts, and populates the posts with rating data.
     PostModel.findById(req.params.id, async (err, post) => {
         if (err || post == null) {
             res.status(404).send({

@@ -40,6 +40,7 @@ const deleteTopic = (req, res) => {
 				error: `Could not find topic: ${req.params.id}`,
 			})
 		} else {
+			// also deletes any posts associated with the topic
 			await PostModel.deleteMany({ topic: req.params.id })
             res.sendStatus(204)
         }

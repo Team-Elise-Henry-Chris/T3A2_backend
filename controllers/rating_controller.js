@@ -3,13 +3,14 @@ const UserModel = require("../db/user_model")
 const PostModel = require("../db/post_model")
 
 const createRating = async (req, res) => {
+    // check user and post ids are valid
     const foundUser = await UserModel.findById(req.id)
     const foundPost = await PostModel.findById(req.body.postId)
-
     if (!foundUser || !foundPost) {
         return res.status(400).send({ error: "user or post not found" })
     }
 
+    // check the user hasn't already rated the post
     const populatedPost = await foundPost.populate("ratings")
     let duplicateRating = false
     populatedPost.ratings.forEach((rating) => {
@@ -17,7 +18,7 @@ const createRating = async (req, res) => {
             duplicateRating = true
         }
     })
-
+    // and then create the post
     if (!duplicateRating) {
         await RatingModel.create(
             { rating: req.body.rating, user: foundUser._id },

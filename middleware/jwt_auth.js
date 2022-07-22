@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken")
 
 const jwtAuthorize = (req, res, next) => {
+    // check request has a bearer token
     const authHeader = req.headers["authorization"]
     if (!authHeader?.startsWith("Bearer ")) {
         return res
@@ -14,7 +15,7 @@ const jwtAuthorize = (req, res, next) => {
         if (err) {
             return res.status(403).send({ error: "invalid token" })
         }
-        //hand verified user id and role to req body
+        //hand verified userId and role to request body
         req.id = decrypted.id
         req.role = decrypted.role
         next()
