@@ -59,7 +59,7 @@ const loginUser = async (req, res) => {
                 role: foundUser.role,
             },
             process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: "5m" }
+            { expiresIn: "2h" }
         )
         const refreshToken = jwt.sign(
             {
@@ -120,7 +120,7 @@ const giveNewAccessToken = async (req, res) => {
                         role: foundUser.role,
                     },
                     process.env.ACCESS_TOKEN_SECRET,
-                    { expiresIn: "5min" }
+                    { expiresIn: "2h" }
                 )
                 res.status(200).send({
                     success: "new access token granted",
