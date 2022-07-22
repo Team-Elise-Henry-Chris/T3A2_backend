@@ -6,8 +6,8 @@ const chaiHttp = require("chai-http")
 
 chai.use(chaiHttp)
 
-mochaSuite("Gets all topics", () => {
-    it("returns an array of topics", (done) => {
+mochaSuite("Gets all posts", () => {
+    it("returns an array of posts", (done) => {
         chai.request(app)
             .get("/api/v1/topic")
             .end((err, res) => {
@@ -17,4 +17,5 @@ mochaSuite("Gets all topics", () => {
             })
     })
 })
+
 

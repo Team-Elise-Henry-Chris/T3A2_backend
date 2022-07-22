@@ -7,7 +7,7 @@ module.exports = (testDescription, testsCallBack) => {
                 await mongoose.connection.collections[i].deleteMany(() => {})
             }
         })
-
         testsCallBack()
     })
 }
+
