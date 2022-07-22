@@ -1,3 +1,4 @@
+// only allows access if user has the role 'admin'
 // must be called after jwt_authorize middleware
 const authorizeAdmin = (req, res, next) => {
     if (!req?.role) {

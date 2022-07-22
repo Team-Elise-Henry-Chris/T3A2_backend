@@ -1,7 +1,8 @@
 const mongoose = require("mongoose")
 const { MongoMemoryServer } = require("mongodb-memory-server")
 
-
+// if a test is being run, use a mock mongoose server
+// otherwise connect to the atlas database
 if (process.env.NODE_ENV === "test") {
     startTestServer()
 } else {

@@ -9,15 +9,6 @@ const errorHandler = require("./middleware/error_handler.js")
 const apiRoutesV1 = require("./routes")
 const cookieParser = require("cookie-parser")
 
-// TODO configure corsoptions for server address
-// may need to allow credentials option for front end to send cookie.
-
-// const corsOptions = {
-//     origin: 'address.com'
-//     optionsSuccessStatus: 200
-// }
-// app.use(cors(corsOptions))
-
 // allow cross-origin resource sharing
 app.use(cors({ origin: "*", credentials: true }))
 
